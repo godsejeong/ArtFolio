@@ -32,6 +32,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,13 +79,14 @@ public class ARActivity extends AppCompatActivity {
     private ViroViewARCore mViroView;
     private ARScene mScene;
     private View mHudGroupView;
-    private TextView mHUDInstructions;
+    private TextView mHUDInstructions,SubText;
     private ImageView mCameraButton;
-    private View mIconShakeView;
+    private View mIconShakeView,ARstateView;
 
     /*
-     The Tracking status is used to coordinate the displaying of our 3D controls and HUD
-     UI as the user looks around the tracked AR Scene.
+     추적상태를 나타내는거
+     3D 컨트롤과 HUD의 표시를 조정하는데 사용
+     추적된 AR Scene을 둘러보는 UI.
      */
     private enum TRACK_STATUS {
         FINDING_SURFACE,
@@ -103,8 +105,8 @@ public class ARActivity extends AppCompatActivity {
     private ARHitTestListenerCrossHair mCrossHairHitTest = null;
 
     /*
-     * ARNode under which to parent our 3D furniture model. This is only created
-     * and non-ull if a user has selected a surface upon which to place the furniture.
+     * ARNode를 통해 3D 가구 모델을 생성된다.
+     * 사용자가 가구를 배치할 표면을 선택한 경우 사용하면 안됨.
      */
     private ARNode mHitARNode = null;
 
@@ -194,26 +196,26 @@ public class ARActivity extends AppCompatActivity {
     }
 
     private void displayScene() {
-        // Create the ARScene within which to load our ProductAR Experience
+        // AR을 로드할 Scene구현
         mScene = new ARScene();
         mMainLight = new AmbientLight(Color.parseColor("#606060"), 400);
         mMainLight.setInfluenceBitMask(3);
         mScene.getRootNode().addLight(mMainLight);
 
-        // Setup our 3D and HUD controls
+        //3D,HUD 배치 관련 컨트롤러들
         initARCrosshair();
         init3DModelProduct();
         initARHud();
 
-        // Start our tracking UI when the scene is ready to be tracked
+        // Scene을 체크준비가 하면 UI체크를 함
         mScene.setListener(new ARSceneListener());
 
-        // Finally set the arScene on the renderer
+        // 마지막으로 렌더 arcore를 설정한다.
         mViroView.setScene(mScene);
     }
 
     private void initARHud() {
-        // TextView instructions
+
         mHUDInstructions = (TextView) mViroView.findViewById(R.id.ar_hud_instructions);
         mViroView.findViewById(R.id.bottom_frame_controls).setVisibility(View.VISIBLE);
 
@@ -231,6 +233,7 @@ public class ARActivity extends AppCompatActivity {
 
         // Bind the camera button on the bottom, for taking images.
         mCameraButton = (ImageView) mViroView.findViewById(R.id.ar_photo_button);
+        SubText = mViroView.findViewById(R.id.ar_hub_seb);
         final File photoFile = new File(getFilesDir(), "screenShot");
         mCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -258,6 +261,7 @@ public class ARActivity extends AppCompatActivity {
         });
 
         mIconShakeView = mViroView.findViewById(R.id.icon_shake_phone);
+        ARstateView = mViroView.findViewById(R.id.instructions_group);
     }
 
     private void initARCrosshair() {
@@ -272,7 +276,9 @@ public class ARActivity extends AppCompatActivity {
 
         final Object3D crosshairModel = new Object3D();
         mScene.getRootNode().addChildNode(crosshairModel);
+
         //공간 인식 성공
+        //ARModle를 배치할 곳에 tracking이미지를 띄움
         crosshairModel.loadModel(mViroView.getViroContext(), Uri.parse("file:///android_asset/tracking_1.vrx"), Object3D.Type.FBX, new AsyncObject3DListener() {
             @Override
             public void onObject3DLoaded(Object3D object3D, Object3D.Type type) {
@@ -356,9 +362,6 @@ public class ARActivity extends AppCompatActivity {
             }
         });
 
-
-
-
         // Make this 3D Product object draggable.
         mProductModelGroup.setDragType(Node.DragType.FIXED_TO_WORLD);
         mProductModelGroup.setDragListener(new DragListener() {
@@ -376,10 +379,11 @@ public class ARActivity extends AppCompatActivity {
                     mLastProductRotation = mSavedRotateToRotation;
                 } else {
                     //안녕
+
                     Vector rotateTo = new Vector(mLastProductRotation.x + radians, mLastProductRotation.y + radians, mLastProductRotation.z + radians);
                     Log.e("vector", "x = " + (mLastProductRotation.x + radians) + "y = " + (mLastProductRotation.y + radians) + "z = " + (mLastProductRotation.z + radians + "radians= " + radians));
 
-                    if(mLastProductRotation.x + radians <= 0 || mLastProductRotation.y + radians <= 0 || mLastProductRotation.z + radians <= 0){
+                    if(mLastProductRotation.x <= 0.5|| mLastProductRotation.y <= 0.5 || mLastProductRotation.z <= 0.5){
                         return;
                     }
                     mProductModelGroup.setScale(rotateTo);
@@ -389,6 +393,8 @@ public class ARActivity extends AppCompatActivity {
                 }
             }
         });
+
+
 
 //        productModel.setLi
 
@@ -417,6 +423,7 @@ public class ARActivity extends AppCompatActivity {
             case FINDING_SURFACE:
 //                mHUDInstructions.setText("Point the camera at the flat surface where you want to view your product.");
                 mHUDInstructions.setText("카메라를 평평한 표면에 놓으세요");
+                SubText.setText("Step 1");
                 break;
             case SURFACE_NOT_FOUND:
 //                mHUDInstructions.setText("We can’t seem to find a surface. Try moving your phone more in any direction.");
@@ -425,10 +432,12 @@ public class ARActivity extends AppCompatActivity {
             case SURFACE_FOUND:
 //                mHUDInstructions.setText("Great! Now tap where you want to see the product.");
                 mHUDInstructions.setText("그림을 배치하고 싶은곳을 터치하세요");
+                SubText.setText("Step 2");
                 break;
             case SELECTED_SURFACE:
 //                mHUDInstructions.setText("Great! Use one finger to move and two fingers to rotate.");
                 mHUDInstructions.setText("두손가락으로 크기를 조정하고 한손가락으로 위치를 조정하세요");
+                SubText.setText("Step 3");
                 break;
             default:
 //                mHUDInstructions.setText("Initializing AR....");
@@ -444,9 +453,14 @@ public class ARActivity extends AppCompatActivity {
 
         // Update the Icon shake view
         if (mStatus == TRACK_STATUS.SURFACE_NOT_FOUND) {
+            ARstateView.getLayoutParams().height = (int) getResources().getDimension(R.dimen.arstatereplace_height);
             mIconShakeView.setVisibility(View.VISIBLE);
+            Log.e("state2", String.valueOf(ARstateView.getHeight()));
+//            365
         } else {
             mIconShakeView.setVisibility(View.GONE);
+            ARstateView.getLayoutParams().height = (int) getResources().getDimension(R.dimen.arstatebasic_height);
+            Log.e("state", String.valueOf(ARstateView.getHeight()));
         }
     }
 

@@ -5,7 +5,6 @@
     android:id="@+id/main_hud_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="5dp"
     tools:context="com.didimstory.artfolioapplication.MainActivity">
 
     <ImageView
@@ -19,9 +18,9 @@
 
     <LinearLayout
         android:id="@+id/bottom_frame_controls"
-        android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
+        android:visibility="gone"
         android:gravity="bottom|center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -36,20 +35,31 @@
 
         <LinearLayout
             android:id="@+id/instructions_group"
-            android:padding="10dp"
             android:background="@drawable/ar_hud_instruction_bg"
             android:orientation="vertical"
-            android:layout_height="60dp"
+            android:gravity="center"
+            android:layout_height="110dp"
             android:layout_width="match_parent">
 
             <TextView
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
+                android:gravity="center"
+                android:id="@+id/ar_hub_seb"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="13sp" />
+
+
+            <TextView
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
                 android:id="@+id/ar_hud_instructions"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:textSize="15sp" />
-        </LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="11sp" />
 
         <ImageView
             android:visibility="gone"
@@ -59,5 +69,6 @@
             android:layout_height="80dp"
             android:src="@drawable/btn_camera"
             android:scaleType="fitCenter"/>
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
