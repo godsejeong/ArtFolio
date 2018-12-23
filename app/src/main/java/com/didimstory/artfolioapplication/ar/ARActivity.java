@@ -24,7 +24,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -40,6 +42,13 @@ import android.widget.Toast;
 import com.didimstory.artfolioapplication.R;
 import com.didimstory.artfolioapplication.model.Product;
 import com.didimstory.artfolioapplication.model.ViroHelper;
+import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.Session;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.viro.core.ARAnchor;
 import com.viro.core.ARHitTestListener;
 import com.viro.core.ARHitTestResult;
@@ -50,10 +59,12 @@ import com.viro.core.AsyncObject3DListener;
 import com.viro.core.ClickListener;
 import com.viro.core.ClickState;
 import com.viro.core.DragListener;
+import com.viro.core.GesturePinchListener;
 import com.viro.core.GestureRotateListener;
 import com.viro.core.Material;
 import com.viro.core.Node;
 import com.viro.core.Object3D;
+import com.viro.core.PinchState;
 import com.viro.core.Portal;
 import com.viro.core.PortalScene;
 import com.viro.core.Texture;
@@ -76,12 +87,15 @@ public class ARActivity extends AppCompatActivity {
     private static final String TAG = ARActivity.class.getSimpleName();
     final public static String INTENT_PRODUCT_KEY = "product_key";
 
+    private boolean installRequested;
+
     private ViroViewARCore mViroView;
     private ARScene mScene;
     private View mHudGroupView;
-    private TextView mHUDInstructions,SubText;
+    private TextView mHUDInstructions, SubText;
     private ImageView mCameraButton;
-    private View mIconShakeView,ARstateView;
+    private View mIconShakeView, ARstateView;
+    private float rotateStart, scaleStart;
 
     /*
      추적상태를 나타내는거
@@ -103,56 +117,106 @@ public class ARActivity extends AppCompatActivity {
     private Vector mLastProductRotation = new Vector();
     private Vector mSavedRotateToRotation = new Vector();
     private ARHitTestListenerCrossHair mCrossHairHitTest = null;
+    private Session session;
 
     /*
      * ARNode를 통해 3D 가구 모델을 생성된다.
      * 사용자가 가구를 배치할 표면을 선택한 경우 사용하면 안됨.
      */
+
     private ARNode mHitARNode = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        ARInstall();
         RendererConfiguration config = new RendererConfiguration();
         config.setShadowsEnabled(true);
         config.setBloomEnabled(true);
         config.setHDREnabled(true);
         config.setPBREnabled(true);
 
-        mViroView = new ViroViewARCore(this, new ViroViewARCore.StartupListener() {
-            @Override
-            public void onSuccess() {
-                displayScene();
+        try {
+            mViroView = new ViroViewARCore(this, new ViroViewARCore.StartupListener() {
+                @Override
+                public void onSuccess() {
+                    displayScene();
+                }
+
+                @Override
+                public void onFailure(ViroViewARCore.StartupError error, String errorMessage) {
+                    Log.e(TAG, "Failed to load AR Scene [" + errorMessage + "]");
+                }
+            }, config);
+            setContentView(mViroView);
+
+            Intent intent = getIntent();
+            String key = intent.getStringExtra(INTENT_PRODUCT_KEY);
+            ProductApplicationContext context = (ProductApplicationContext) getApplicationContext();
+            mSelectedProduct = context.getProductDB().getProductByName(key);
+
+            View.inflate(this, R.layout.activity_ar, ((ViewGroup) mViroView));
+            mHudGroupView = (View) findViewById(R.id.main_hud_layout);
+            mHudGroupView.setVisibility(View.GONE);
+
+        } catch (com.viro.core.DeviceNotCompatibleException e) {
+            Log.e("DeviceNotCompatibleException", String.valueOf(e));
+        }
+    }
+
+
+    private void ARInstall() {
+
+        if (session == null) {
+            Exception exception = null;
+            String message = null;
+            try {
+                switch (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
+                    case INSTALL_REQUESTED:
+                        installRequested = true;
+                        return;
+                    case INSTALLED:
+                        break;
+                }
+
+                // Create the session.
+                session = new Session(/* context= */ this);
+
+            } catch (UnavailableArcoreNotInstalledException
+                    | UnavailableUserDeclinedInstallationException e) {
+                message = "Please install ARCore";
+                exception = e;
+            } catch (UnavailableApkTooOldException e) {
+                message = "Please update ARCore";
+                exception = e;
+            } catch (UnavailableSdkTooOldException e) {
+                message = "Please update this app";
+                exception = e;
+            } catch (UnavailableDeviceNotCompatibleException e) {
+                message = "This device does not support AR";
+                exception = e;
+            } catch (NullPointerException e) {
+                message = "Failed to create AR session";
+                exception = e;
+            } catch (Exception e) {
+                message = "Failed to create AR session";
+                exception = e;
             }
-
-            @Override
-            public void onFailure(ViroViewARCore.StartupError error, String errorMessage) {
-                Log.e(TAG, "Failed to load AR Scene [" + errorMessage + "]");
-            }
-        }, config);
-        setContentView(mViroView);
-
-        Intent intent = getIntent();
-        String key = intent.getStringExtra(INTENT_PRODUCT_KEY);
-        ProductApplicationContext context = (ProductApplicationContext) getApplicationContext();
-        mSelectedProduct = context.getProductDB().getProductByName(key);
-
-        View.inflate(this, R.layout.activity_ar, ((ViewGroup) mViroView));
-        mHudGroupView = (View) findViewById(R.id.main_hud_layout);
-        mHudGroupView.setVisibility(View.GONE);
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mViroView.onActivityStarted(this);
+        ARInstall();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mViroView.onActivityResumed(this);
+        ARInstall();
     }
 
     @Override
@@ -215,7 +279,6 @@ public class ARActivity extends AppCompatActivity {
     }
 
     private void initARHud() {
-
         mHUDInstructions = (TextView) mViroView.findViewById(R.id.ar_hud_instructions);
         mViroView.findViewById(R.id.bottom_frame_controls).setVisibility(View.VISIBLE);
 
@@ -363,40 +426,39 @@ public class ARActivity extends AppCompatActivity {
         });
 
         // Make this 3D Product object draggable.
-        mProductModelGroup.setDragType(Node.DragType.FIXED_TO_WORLD);
+        mProductModelGroup.setDragType(Node.DragType.FIXED_DISTANCE_ORIGIN);
+
         mProductModelGroup.setDragListener(new DragListener() {
             @Override
             public void onDrag(int i, Node node, Vector vector, Vector vector1) {
+                Log.e("ondrag", String.valueOf(i));
                 // No-op
             }
         });
 
-        // Set gesture listeners such that the user can rotate this model.
+        //크기조정 및 위치조정
         productModel.setGestureRotateListener(new GestureRotateListener() {
             @Override
-            public void onRotate(int source, Node node, float radians, RotateState rotateState) {
-                if (rotateState == RotateState.ROTATE_END) {
-                    mLastProductRotation = mSavedRotateToRotation;
-                } else {
-                    //안녕
-
-                    Vector rotateTo = new Vector(mLastProductRotation.x + radians, mLastProductRotation.y + radians, mLastProductRotation.z + radians);
-                    Log.e("vector", "x = " + (mLastProductRotation.x + radians) + "y = " + (mLastProductRotation.y + radians) + "z = " + (mLastProductRotation.z + radians + "radians= " + radians));
-
-                    if(mLastProductRotation.x <= 0.5|| mLastProductRotation.y <= 0.5 || mLastProductRotation.z <= 0.5){
-                        return;
-                    }
-                    mProductModelGroup.setScale(rotateTo);
-//                    mProductModelGroup.setRotation(rotateTo);
-                    mSavedRotateToRotation = rotateTo;
-
+            public void onRotate(int i, Node node, float rotation, RotateState rotateState) {
+                if (rotateState == RotateState.ROTATE_START) {
+                    rotateStart = productModel.getRotationEulerRealtime().y;
                 }
+                float totalRotationY = rotateStart + rotation;
+                mProductModelGroup.setRotation(new Vector(0, totalRotationY, 0));
             }
         });
 
 
-
-//        productModel.setLi
+        productModel.setGesturePinchListener(new GesturePinchListener() {
+            @Override
+            public void onPinch(int i, Node node, float scale, PinchState pinchState) {
+                if (pinchState == PinchState.PINCH_START) {
+                    scaleStart = productModel.getScaleRealtime().x;
+                } else {
+                    productModel.setScale(new Vector(scaleStart * scale, scaleStart * scale, scaleStart * scale));
+                }
+            }
+        });
 
         mProductModelGroup.setOpacity(0);
         mProductModelGroup.addChildNode(productModel);
@@ -436,7 +498,7 @@ public class ARActivity extends AppCompatActivity {
                 break;
             case SELECTED_SURFACE:
 //                mHUDInstructions.setText("Great! Use one finger to move and two fingers to rotate.");
-                mHUDInstructions.setText("두손가락으로 크기를 조정하고 한손가락으로 위치를 조정하세요");
+                mHUDInstructions.setText("두손가락으로 크기와 위치를 조정하고 한손가락으로 위치를 조정하세요");
                 SubText.setText("Step 3");
                 break;
             default:
@@ -444,23 +506,24 @@ public class ARActivity extends AppCompatActivity {
                 mHUDInstructions.setText("셋팅중입니다...");
         }
 
-        // Update the camera UI
+        // 카메라(공유) 버튼 나오게 하는거
         if (mStatus == TRACK_STATUS.SELECTED_SURFACE) {
+            int a = (int) getResources().getDimension(R.dimen.arstatereplace_height);
+            ARstateView.getLayoutParams().height = a;
+            Log.e("state2", String.valueOf(a));
             mCameraButton.setVisibility(View.VISIBLE);
         } else {
             mCameraButton.setVisibility(View.GONE);
+            ARstateView.getLayoutParams().height = (int) getResources().getDimension(R.dimen.arstatebasic_height);
+            Log.e("state", String.valueOf(ARstateView.getHeight()));
         }
 
-        // Update the Icon shake view
+        // 흔드는 표시 나오게 하는거
         if (mStatus == TRACK_STATUS.SURFACE_NOT_FOUND) {
-            ARstateView.getLayoutParams().height = (int) getResources().getDimension(R.dimen.arstatereplace_height);
             mIconShakeView.setVisibility(View.VISIBLE);
-            Log.e("state2", String.valueOf(ARstateView.getHeight()));
 //            365
         } else {
             mIconShakeView.setVisibility(View.GONE);
-            ARstateView.getLayoutParams().height = (int) getResources().getDimension(R.dimen.arstatebasic_height);
-            Log.e("state", String.valueOf(ARstateView.getHeight()));
         }
     }
 
