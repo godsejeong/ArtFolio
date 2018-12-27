@@ -1,7 +1,8 @@
-package com.didimstory.artfolioapplication
+package com.didimstory.artfolioapplication.activity
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.didimstory.artfolioapplication.R
 
 class MainActivity : AppCompatActivity() {
 

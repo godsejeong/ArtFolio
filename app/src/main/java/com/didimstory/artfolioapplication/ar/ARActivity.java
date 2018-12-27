@@ -40,7 +40,6 @@ import android.widget.Toast;
 
 
 import com.didimstory.artfolioapplication.R;
-import com.didimstory.artfolioapplication.model.Product;
 import com.didimstory.artfolioapplication.model.ViroHelper;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Session;
@@ -110,7 +109,6 @@ public class ARActivity extends AppCompatActivity {
     }
 
     private TRACK_STATUS mStatus = TRACK_STATUS.SURFACE_NOT_FOUND;
-    private Product mSelectedProduct = null;
     private Node mProductModelGroup = null;
     private Node mCrosshairModel = null;
     private AmbientLight mMainLight = null;
@@ -152,8 +150,6 @@ public class ARActivity extends AppCompatActivity {
 
             Intent intent = getIntent();
             String key = intent.getStringExtra(INTENT_PRODUCT_KEY);
-            ProductApplicationContext context = (ProductApplicationContext) getApplicationContext();
-            mSelectedProduct = context.getProductDB().getProductByName(key);
 
             View.inflate(this, R.layout.activity_ar, ((ViewGroup) mViroView));
             mHudGroupView = (View) findViewById(R.id.main_hud_layout);
