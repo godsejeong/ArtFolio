@@ -160,9 +160,8 @@ public class ARActivity extends AppCompatActivity {
         }
     }
 
-
+    //GoogleARcore가 깔려있는지 확인 하는 부분
     private void ARInstall() {
-
         if (session == null) {
             Exception exception = null;
             String message = null;
@@ -204,21 +203,34 @@ public class ARActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mViroView.onActivityStarted(this);
-        ARInstall();
+        try {
+            mViroView.onActivityStarted(this);
+            ARInstall();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mViroView.onActivityResumed(this);
-        ARInstall();
+        try {
+            mViroView.onActivityResumed(this);
+            ARInstall();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mViroView.onActivityPaused(this);
+        try {
+            mViroView.onActivityPaused(this);
+            ARInstall();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -233,7 +245,7 @@ public class ARActivity extends AppCompatActivity {
         mViroView.onActivityDestroyed(this);
         super.onDestroy();
     }
-
+    //Permission설정
     private void requestPermissions() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -278,7 +290,7 @@ public class ARActivity extends AppCompatActivity {
         mHUDInstructions = (TextView) mViroView.findViewById(R.id.ar_hud_instructions);
         mViroView.findViewById(R.id.bottom_frame_controls).setVisibility(View.VISIBLE);
 
-        // Bind the back button on the top left of the layout
+        //취소,reset버튼들
         ImageView view = (ImageView) findViewById(R.id.ar_back_button);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -287,10 +299,16 @@ public class ARActivity extends AppCompatActivity {
             }
         });
 
-        // Bind the detail buttons on the top right of the layout.
+        TextView resetView = findViewById(R.id.ar_reset_btn);
+        resetView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mProductModelGroup.setOpacity(0);
+            }
+        });
 
 
-        // Bind the camera button on the bottom, for taking images.
+        // 이미지 촬영
         mCameraButton = (ImageView) mViroView.findViewById(R.id.ar_photo_button);
         SubText = mViroView.findViewById(R.id.ar_hub_seb);
         final File photoFile = new File(getFilesDir(), "screenShot");
@@ -366,10 +384,10 @@ public class ARActivity extends AppCompatActivity {
     }
 
     private void init3DModelProduct() {
-        // Create our group node containing the light, shadow plane, and 3D models
+        // 라이트 및 노드 생성
         mProductModelGroup = new Node();
 
-        // Create a light to be shined on the model.
+        // 조명 생성
         Spotlight spotLight = new Spotlight();
         spotLight.setInfluenceBitMask(1);
         spotLight.setPosition(new Vector(0, 5, 0));
@@ -381,7 +399,7 @@ public class ARActivity extends AppCompatActivity {
         spotLight.setShadowOpacity(0.35f);
         mProductModelGroup.addLight(spotLight);
 
-        // Create a mock shadow plane in AR
+        // 그림자 생
         Node shadowNode = new Node();
         Surface shadowSurface = new Surface(20, 20);
         Material material = new Material();
@@ -392,8 +410,9 @@ public class ARActivity extends AppCompatActivity {
         shadowNode.setLightReceivingBitMask(1);
         shadowNode.setPosition(new Vector(0, -0.01, 0));
         shadowNode.setRotation(new Vector(-1.5708, 0, 0));
-        // We want the shadow node to ignore all events because it contains a surface of size 20x20
-        // meters and causes this to capture events which will bubble up to the mProductModelGroup node.
+        // 섀도우 노드는 20x20, 모든 이벤트를 무시함.
+
+        //mProductModelGroup 노드까지 이벤트를 캡처하게 한다.
         shadowNode.setIgnoreEventHandling(true);
         mProductModelGroup.addChildNode(shadowNode);
 
@@ -401,7 +420,7 @@ public class ARActivity extends AppCompatActivity {
 
         final Object3D productModel = new Object3D();
 
-        // Load the model from the given mSelected Product
+        // ARmodel띄움
         productModel.loadModel(mViroView.getViroContext(), Uri.parse("file:///android_asset/frame_02.obj"), Object3D.Type.OBJ, new AsyncObject3DListener() {
             @Override
             public void onObject3DLoaded(Object3D object3D, Object3D.Type type) {
@@ -421,7 +440,7 @@ public class ARActivity extends AppCompatActivity {
             }
         });
 
-        // Make this 3D Product object draggable.
+        // 드래그 설정
         mProductModelGroup.setDragType(Node.DragType.FIXED_DISTANCE_ORIGIN);
 
         mProductModelGroup.setDragListener(new DragListener() {
@@ -465,7 +484,7 @@ public class ARActivity extends AppCompatActivity {
             return;
         }
 
-        // If the surface has been selected, we no longer need our cross hair listener.
+        // modle 선택하면 null
         if (status == TRACK_STATUS.SELECTED_SURFACE) {
             ((ViroViewARCore) mViroView).setCameraARHitTestListener(null);
         }
@@ -514,15 +533,15 @@ public class ARActivity extends AppCompatActivity {
             Log.e("state", String.valueOf(ARstateView.getHeight()));
         }
 
-        // 흔드는 표시 나오게 하는거
+        // 흔드는 이미지 visible,gone
         if (mStatus == TRACK_STATUS.SURFACE_NOT_FOUND) {
             mIconShakeView.setVisibility(View.VISIBLE);
-//            365
         } else {
             mIconShakeView.setVisibility(View.GONE);
         }
     }
 
+    //모델 업데이트
     private void update3DARCrosshair() {
         switch (mStatus) {
             case FINDING_SURFACE:
@@ -545,7 +564,7 @@ public class ARActivity extends AppCompatActivity {
     }
 
     private void update3DModelProduct() {
-        // Hide the product if the user has not placed it yet.
+        // Medle이 배치되지 않았을시 숨김
         if (mStatus != TRACK_STATUS.SELECTED_SURFACE) {
             mProductModelGroup.setOpacity(0);
             return;
@@ -560,6 +579,7 @@ public class ARActivity extends AppCompatActivity {
         mProductModelGroup.setOpacity(1);
     }
 
+    //교차설정?
     private class ARHitTestListenerCrossHair implements ARHitTestListener {
         @Override
         public void onHitTestFinished(ARHitTestResult[] arHitTestResults) {
@@ -567,11 +587,11 @@ public class ARActivity extends AppCompatActivity {
                 return;
             }
 
-            // If we have found intersected AR Hit points, update views as needed, reset miss count.
+            // 교차된 AR Hit 포인트를 발견한 경우 보기를 업데이트하고 누락된 횟수를 설정.
             ViroViewARCore viewARView = (ViroViewARCore) mViroView;
             final Vector cameraPos = viewARView.getLastCameraPositionRealtime();
 
-            // Grab the closest ar hit target
+            // 근접한 부분의 타켓을 찾음
             float closestDistance = Float.MAX_VALUE;
             ARHitTestResult result = null;
             for (int i = 0; i < arHitTestResults.length; i++) {
@@ -584,13 +604,13 @@ public class ARActivity extends AppCompatActivity {
                 }
             }
 
-            // Update the cross hair target location with the closest target.
+            //대각선 방향으로 가장가까운곳에 업데이트
             if (result != null) {
                 mCrosshairModel.setPosition(result.getPosition());
                 mCrosshairModel.setRotation(result.getRotation());
             }
 
-            // Update State based on hit target
+            // 타켓 업데이트 상태 check
             if (result != null) {
                 setTrackingStatus(TRACK_STATUS.SURFACE_FOUND);
             } else {
@@ -608,16 +628,16 @@ public class ARActivity extends AppCompatActivity {
 
         @Override
         public void onTrackingInitialized() {
-            // This method is deprecated.
+            // 더이상하용하지 않을떄
         }
 
         @Override
         public void onTrackingUpdated(ARScene.TrackingState trackingState, ARScene.TrackingStateReason trackingStateReason) {
             if (trackingState == ARScene.TrackingState.NORMAL && !mInitialized) {
-                // The Renderer is ready - turn everything visible.
+                // 레더링 준비 - view 전체 visible
                 mHudGroupView.setVisibility(View.VISIBLE);
 
-                // Update our UI views to the finding surface state.
+                // UI 업데이트
                 setTrackingStatus(TRACK_STATUS.FINDING_SURFACE);
                 mInitialized = true;
             }

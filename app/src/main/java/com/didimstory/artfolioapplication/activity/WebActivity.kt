@@ -19,9 +19,8 @@ class WebActivity : AppCompatActivity() {
 
         //자스 설정
         webView.settings.javaScriptEnabled = true
+
         webView.loadUrl(url)
         webView.webViewClient = WebViewClient()
-
-
     }
 }
