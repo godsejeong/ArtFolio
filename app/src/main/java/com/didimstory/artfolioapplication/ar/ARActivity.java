@@ -1,19 +1,3 @@
-/*
- * Copyright (c) 2017-present, Viro, Inc.
- * All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.didimstory.artfolioapplication.ar;
 
 import android.Manifest;
@@ -134,7 +118,6 @@ public class ARActivity extends AppCompatActivity {
         config.setHDREnabled(true);
         config.setPBREnabled(true);
 
-        try {
             mViroView = new ViroViewARCore(this, new ViroViewARCore.StartupListener() {
                 @Override
                 public void onSuccess() {
@@ -155,9 +138,6 @@ public class ARActivity extends AppCompatActivity {
             mHudGroupView = (View) findViewById(R.id.main_hud_layout);
             mHudGroupView.setVisibility(View.GONE);
 
-        } catch (com.viro.core.DeviceNotCompatibleException e) {
-            Log.e("DeviceNotCompatibleException", String.valueOf(e));
-        }
     }
 
     //GoogleARcore가 깔려있는지 확인 하는 부분
@@ -169,6 +149,7 @@ public class ARActivity extends AppCompatActivity {
                 switch (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
                     case INSTALL_REQUESTED:
                         installRequested = true;
+
                         return;
                     case INSTALLED:
                         break;
@@ -262,7 +243,7 @@ public class ARActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         if (requestCode == RECORD_PERM_KEY && !hasRecordingStoragePermissions(ARActivity.this)) {
-            Toast toast = Toast.makeText(ARActivity.this, "User denied permissions", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(ARActivity.this, "권한을 허용해 주세요", Toast.LENGTH_LONG);
             toast.show();
         }
     }
@@ -303,7 +284,12 @@ public class ARActivity extends AppCompatActivity {
         resetView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mProductModelGroup.setOpacity(0);
+                mHudGroupView.setVisibility(View.VISIBLE);
+                mStatus = TRACK_STATUS.FINDING_SURFACE;
+                mHitARNode = null;
+                updateUIHud();
+                update3DARCrosshair();
+                update3DModelProduct();
             }
         });
 
@@ -399,7 +385,7 @@ public class ARActivity extends AppCompatActivity {
         spotLight.setShadowOpacity(0.35f);
         mProductModelGroup.addLight(spotLight);
 
-        // 그림자 생
+        // 그림자 생성
         Node shadowNode = new Node();
         Surface shadowSurface = new Surface(20, 20);
         Material material = new Material();
@@ -481,20 +467,22 @@ public class ARActivity extends AppCompatActivity {
 
     private void setTrackingStatus(TRACK_STATUS status) {
         if (mStatus == TRACK_STATUS.SELECTED_SURFACE || mStatus == status) {
+            Log.e("check","return");
             return;
         }
 
         // modle 선택하면 null
         if (status == TRACK_STATUS.SELECTED_SURFACE) {
+            Log.e("check","viroview");
             ((ViroViewARCore) mViroView).setCameraARHitTestListener(null);
         }
-
         mStatus = status;
         updateUIHud();
         update3DARCrosshair();
         update3DModelProduct();
     }
 
+    //AR의 상태
     private void updateUIHud() {
         switch (mStatus) {
             case FINDING_SURFACE:
@@ -567,10 +555,12 @@ public class ARActivity extends AppCompatActivity {
         // Medle이 배치되지 않았을시 숨김
         if (mStatus != TRACK_STATUS.SELECTED_SURFACE) {
             mProductModelGroup.setOpacity(0);
+            Log.e("product","숨김");
             return;
         }
 
         if (mHitARNode != null) {
+            Log.e("product","null");
             return;
         }
 
@@ -579,7 +569,7 @@ public class ARActivity extends AppCompatActivity {
         mProductModelGroup.setOpacity(1);
     }
 
-    //교차설정?
+    //model을 놓을 곳 인식
     private class ARHitTestListenerCrossHair implements ARHitTestListener {
         @Override
         public void onHitTestFinished(ARHitTestResult[] arHitTestResults) {

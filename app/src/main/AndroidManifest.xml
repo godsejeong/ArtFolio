@@ -38,11 +38,14 @@
             </intent-filter>
 
         </activity>
-        <activity android:name=".activity.SplashActivity">
+        <activity android:name=".activity.SplashActivity"
+            android:theme="@style/BasicTheme">
 
         </activity>
-        <activity android:name=".activity.SigninActivity" />
-        <activity android:name=".activity.WebActivity"></activity>
+        <activity android:name=".activity.SigninActivity"
+            android:theme="@style/BasicTheme"/>
+        <activity android:name=".activity.WebActivity"
+            android:theme="@style/BasicTheme"></activity>
     </application>
 
 </manifest>
