@@ -111,13 +111,12 @@ public class ARActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ARInstall();
         RendererConfiguration config = new RendererConfiguration();
         config.setShadowsEnabled(true);
         config.setBloomEnabled(true);
         config.setHDREnabled(true);
         config.setPBREnabled(true);
-
+        try {
             mViroView = new ViroViewARCore(this, new ViroViewARCore.StartupListener() {
                 @Override
                 public void onSuccess() {
@@ -137,7 +136,10 @@ public class ARActivity extends AppCompatActivity {
             View.inflate(this, R.layout.activity_ar, ((ViewGroup) mViroView));
             mHudGroupView = (View) findViewById(R.id.main_hud_layout);
             mHudGroupView.setVisibility(View.GONE);
-
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            ARInstall();
+        }
     }
 
     //GoogleARcore가 깔려있는지 확인 하는 부분
@@ -160,23 +162,25 @@ public class ARActivity extends AppCompatActivity {
 
             } catch (UnavailableArcoreNotInstalledException
                     | UnavailableUserDeclinedInstallationException e) {
-                message = "Please install ARCore";
-                exception = e;
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "ARcore를 다운로드 해주세요", Toast.LENGTH_SHORT).show();
+                finish();
             } catch (UnavailableApkTooOldException e) {
-                message = "Please update ARCore";
-                exception = e;
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "ARcore를 압데이트 해주세요", Toast.LENGTH_SHORT).show();
+                finish();
             } catch (UnavailableSdkTooOldException e) {
-                message = "Please update this app";
-                exception = e;
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "스토어에서 업데이트 해주세요", Toast.LENGTH_SHORT).show();
+                finish();
             } catch (UnavailableDeviceNotCompatibleException e) {
-                message = "This device does not support AR";
-                exception = e;
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "AR을 지원하지 않는 기종입니다.", Toast.LENGTH_SHORT).show();
+                finish();
             } catch (NullPointerException e) {
-                message = "Failed to create AR session";
-                exception = e;
-            } catch (Exception e) {
-                message = "Failed to create AR session";
-                exception = e;
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "AR모델을 생성을 생성하는데 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
@@ -186,9 +190,9 @@ public class ARActivity extends AppCompatActivity {
         super.onStart();
         try {
             mViroView.onActivityStarted(this);
-            ARInstall();
         } catch (Exception e) {
             e.printStackTrace();
+            ARInstall();
         }
     }
 
@@ -197,9 +201,9 @@ public class ARActivity extends AppCompatActivity {
         super.onResume();
         try {
             mViroView.onActivityResumed(this);
-            ARInstall();
         } catch (Exception e) {
             e.printStackTrace();
+            ARInstall();
         }
     }
 
@@ -208,24 +212,33 @@ public class ARActivity extends AppCompatActivity {
         super.onPause();
         try {
             mViroView.onActivityPaused(this);
+        } catch (Exception e) {
+            e.printStackTrace();
             ARInstall();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        try {
+            super.onStop();
+            mViroView.onActivityStopped(this);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mViroView.onActivityStopped(this);
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            ((ViroViewARCore) mViroView).setCameraARHitTestListener(null);
+            mViroView.onActivityDestroyed(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    @Override
-    protected void onDestroy() {
-        ((ViroViewARCore) mViroView).setCameraARHitTestListener(null);
-        mViroView.onActivityDestroyed(this);
-        super.onDestroy();
-    }
     //Permission설정
     private void requestPermissions() {
         ActivityCompat.requestPermissions(this,
@@ -467,13 +480,13 @@ public class ARActivity extends AppCompatActivity {
 
     private void setTrackingStatus(TRACK_STATUS status) {
         if (mStatus == TRACK_STATUS.SELECTED_SURFACE || mStatus == status) {
-            Log.e("check","return");
+            Log.e("check", "return");
             return;
         }
 
         // modle 선택하면 null
         if (status == TRACK_STATUS.SELECTED_SURFACE) {
-            Log.e("check","viroview");
+            Log.e("check", "viroview");
             ((ViroViewARCore) mViroView).setCameraARHitTestListener(null);
         }
         mStatus = status;
@@ -555,12 +568,12 @@ public class ARActivity extends AppCompatActivity {
         // Medle이 배치되지 않았을시 숨김
         if (mStatus != TRACK_STATUS.SELECTED_SURFACE) {
             mProductModelGroup.setOpacity(0);
-            Log.e("product","숨김");
+            Log.e("product", "숨김");
             return;
         }
 
         if (mHitARNode != null) {
-            Log.e("product","null");
+            Log.e("product", "null");
             return;
         }
 
