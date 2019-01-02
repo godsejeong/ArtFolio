@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import com.didimstory.artfolioapplication.R
-import android.support.v4.content.ContextCompat.startActivity
 
 
 

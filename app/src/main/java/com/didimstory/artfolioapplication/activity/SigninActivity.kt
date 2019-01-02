@@ -21,14 +21,14 @@ class SigninActivity : AppCompatActivity() {
 
         signinLogin.setOnClickListener {
             var intent = Intent(applicationContext,WebActivity::class.java)
-            intent.putExtra("url","http://artfolio.co.kr/user/login")
+            intent.putExtra("url","/user/login")
             startActivity(intent)
             finish()
         }
 
         signinRegister.setOnClickListener {
             var intent = Intent(applicationContext,WebActivity::class.java)
-            intent.putExtra("url","http://artfolio.co.kr/user/login")
+            intent.putExtra("url","/user/register")
             startActivity(intent)
             finish()
         }

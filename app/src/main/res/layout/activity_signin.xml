@@ -26,6 +26,7 @@
         android:letterSpacing="0.03"
         android:lineSpacingExtra="2sp"
         android:text="로그인"
+        android:gravity="center"
         android:layout_marginBottom="15dp"
         app:layout_constraintBottom_toTopOf="@+id/signinRegister"
         app:layout_constraintRight_toRightOf="parent"
