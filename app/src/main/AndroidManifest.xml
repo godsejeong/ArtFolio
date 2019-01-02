@@ -44,7 +44,10 @@
         <activity
             android:name=".activity.WebActivity"
             android:theme="@style/AppTheme" />
-        <activity android:name=".activity.CameraActivity"></activity>
+        <activity android:name=".activity.CameraActivity">
+
+
+        </activity>
     </application>
 
 </manifest>

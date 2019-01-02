@@ -10,6 +10,9 @@ import com.didimstory.artfolioapplication.R
 import kotlinx.android.synthetic.main.activity_web.*
 import android.webkit.WebViewClient
 import android.widget.Toast
+import android.webkit.WebSettings
+
+
 
 
 class WebActivity : AppCompatActivity() {
@@ -18,15 +21,12 @@ class WebActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web)
-
         url = basicurl + intent.getStringExtra("url")
 
         webView.settings.javaScriptEnabled = true
-
+        webView.addJavascriptInterface(com.didimstory.artfolioapplication.JavascriptBridge(this), "ARBridge")
         webView.loadUrl(url)
         webView.webViewClient = WebViewClient()
-
-        webView.addJavascriptInterface(com.didimstory.artfolioapplication.JavascriptBridge(this), "ARBridge")
 
 
     }
