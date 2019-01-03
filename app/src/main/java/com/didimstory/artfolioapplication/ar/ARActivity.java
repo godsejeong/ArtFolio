@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,9 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.didimstory.artfolioapplication.BitmapGender;
+import com.didimstory.artfolioapplication.model.BitmapGender;
 import com.didimstory.artfolioapplication.R;
-import com.didimstory.artfolioapplication.model.ViroHelper;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Session;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
@@ -46,10 +44,7 @@ import com.viro.core.Material;
 import com.viro.core.Node;
 import com.viro.core.Object3D;
 import com.viro.core.PinchState;
-import com.viro.core.Portal;
-import com.viro.core.PortalScene;
 import com.viro.core.Texture;
-import com.viro.core.ViroView;
 import com.viro.core.RendererConfiguration;
 import com.viro.core.RotateState;
 import com.viro.core.Spotlight;
@@ -59,12 +54,7 @@ import com.viro.core.ViroMediaRecorder;
 import com.viro.core.ViroViewARCore;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
 
 
 public class ARActivity extends AppCompatActivity {
@@ -130,9 +120,7 @@ public class ARActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-
-        Log.e("imagePath", String.valueOf(gender.ReturnBitmap()));
+        Log.e("imagePath", String.valueOf(imagePath));
 
         try {
             mViroView = new ViroViewARCore(this, new ViroViewARCore.StartupListener() {
@@ -399,77 +387,6 @@ public class ARActivity extends AppCompatActivity {
             }
         });
     }
-
-//    private Bitmap getBitmapFromURL(String url) {
-//        URL imgUrl = null;
-//        HttpURLConnection connection = null;
-//        final InputStream[] is = {null};
-//
-//        Bitmap retBitmap = null;
-//
-//        try {
-//            imgUrl = new URL(url);
-//            connection = (HttpURLConnection) imgUrl.openConnection();
-//            connection.setDoInput(true); //url로 input받는 flag 허용
-//            new Thread() {
-//                public void run() {
-//                    try {
-//                        connection.connect(); //연결
-//                        is[0] = connection.getInputStream(); // get inputstream
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                        Log.e(TAG, Log.getStackTraceString(e));
-//                    }
-//                }
-//            }.start();
-//            retBitmap = BitmapFactory.decodeStream(is[0]);
-//        } catch (
-//                Exception e)
-//
-//        {
-//            Log.e("imagePath", "gkgkgkg");
-//            e.printStackTrace();
-//            Log.e(TAG, Log.getStackTraceString(e));
-//            return null;
-//        } finally
-//
-//        {
-//            if (connection != null) {
-//                connection.disconnect();
-//            }
-//            return retBitmap;
-//        }
-//    }
-
-
-//    public static Bitmap getBitmapFromURL(final String src) {
-//        try {
-//            final URL url = new URL(src);
-//            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//            final InputStream[] input = new InputStream[1];
-//            connection.setDoInput(true);
-//
-//            new Thread() {
-//                public void run() {
-//                    try {
-//                        connection.connect();
-//                        input[0] = connection.getInputStream();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                        Log.e(TAG, Log.getStackTraceString(e));
-//                    }
-//                }
-//            }.start();
-//
-//            Bitmap myBitmap = BitmapFactory.decodeStream(input[0]);
-//            return myBitmap;
-//        } catch (IOException e) {
-//            // Log exception
-//            Log.e(TAG, Log.getStackTraceString(e));
-//            return null;
-//
-//        }
-//    }
 
     private void init3DModelProduct() {
         // 라이트 및 노드 생성

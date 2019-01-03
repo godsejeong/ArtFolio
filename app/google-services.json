@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "641810138560",
+    "firebase_url": "https://artfolio-5cb1a.firebaseio.com",
+    "project_id": "artfolio-5cb1a",
+    "storage_bucket": "artfolio-5cb1a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641810138560:android:b1507f60fdd26df5",
+        "android_client_info": {
+          "package_name": "com.didimstory.artfolioapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641810138560-a93qu5v929hrbnp2a05uh1pm3mg7r0v3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoVbrbKMx8MnKhzq65xh1pob2EKL8BaX0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

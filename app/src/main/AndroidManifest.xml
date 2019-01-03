@@ -4,7 +4,10 @@
 
     <!-- Required for AR -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" />
     <!-- Required for Recording -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -28,7 +31,7 @@
             android:name=".ar.ARActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme_Custom"></activity>
         <activity
             android:name=".activity.SplashActivity"
             android:theme="@style/BasicTheme">
@@ -44,10 +47,14 @@
         <activity
             android:name=".activity.WebActivity"
             android:theme="@style/AppTheme" />
-        <activity android:name=".activity.CameraActivity">
-
-
-        </activity>
+        <activity
+            android:name=".activity.CameraActivity"
+            android:theme="@style/AppTheme_Custom"></activity>
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+        <activity android:name=".CropActivitry"></activity>
     </application>
 
 </manifest>
