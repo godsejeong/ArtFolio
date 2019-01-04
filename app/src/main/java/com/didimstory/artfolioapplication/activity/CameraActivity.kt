@@ -78,22 +78,16 @@ class CameraActivity : AppCompatActivity() {
             if(requestCode == 100){
                 var destinationUri = Uri.parse("/storage/emulated/0/ArtFolio/img/estination.jpg")
 
-//                val intent = Intent(this, ScanActivity::class.java)
+                val intent = Intent(this, ScanActivity::class.java)
+                intent.putExtra("uri",data!!.data)
+                Log.e("uripath", data!!.data.toString())
 //                intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE,ScanConstants.PICKFILE_REQUEST_CODE)
-//                startActivityForResult(intent,1)
+                startActivityForResult(intent,1)
 //                Log.e("click", "check")
 
-                val fragment = ScanFragment()
-                val bundle = Bundle()
-                bundle.putParcelable(ScanConstants.SELECTED_BITMAP,data!!.data)
-                fragment.arguments = bundle
-                val fragmentManager = fragmentManager
-                val fragmentTransaction = fragmentManager.beginTransaction()
-                fragmentTransaction.add(com.scanlibrary.R.id.content, fragment)
-                fragmentTransaction.addToBackStack(ScanFragment::class.java.toString())
-                fragmentTransaction.commit()
 
-                bitmap = getBitmap(data!!.getData())
+
+                bitmap = getBitmap(data!!.data)
 
 //                ScanFragment
             }

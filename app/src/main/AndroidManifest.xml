@@ -31,7 +31,7 @@
             android:name=".ar.ARActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme_Custom"></activity>
+            android:theme="@style/AppTheme_Custom" />
         <activity
             android:name=".activity.SplashActivity"
             android:theme="@style/BasicTheme">
@@ -49,12 +49,15 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.CameraActivity"
-            android:theme="@style/AppTheme_Custom"></activity>
+            android:theme="@style/AppTheme_Custom" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
-        <activity android:name=".CropActivitry"></activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+            android:name=".scan.ImageScanActivity"
+            android:theme="@style/AppTheme_Custom"></activity>
     </application>
 
 </manifest>

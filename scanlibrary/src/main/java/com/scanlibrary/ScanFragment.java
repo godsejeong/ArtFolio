@@ -52,6 +52,7 @@ public class ScanFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.scan_fragment_layout, null);
+
         init();
         return view;
     }
@@ -62,8 +63,8 @@ public class ScanFragment extends Fragment {
 
     private void init() {
         sourceImageView = (ImageView) view.findViewById(R.id.sourceImageView);
-        scanButton = (Button) view.findViewById(R.id.scanButton);
-        scanButton.setOnClickListener(new ScanButtonClickListener());
+//        scanButton = (Button) view.findViewById(R.id.scanButton);
+//        scanButton.setOnClickListener(new ScanButtonClickListener());
         sourceFrame = (FrameLayout) view.findViewById(R.id.sourceFrame);
         polygonView = (PolygonView) view.findViewById(R.id.polygonView);
         sourceFrame.post(new Runnable() {
@@ -71,7 +72,7 @@ public class ScanFragment extends Fragment {
             public void run() {
                 original = getBitmap();
                 if (original != null) {
-                    setBitmap((Bitmap)getActivity().getIntent().getParcelableExtra("image"));
+                    setBitmap(original);
                 }
             }
         });
@@ -236,5 +237,4 @@ public class ScanFragment extends Fragment {
     protected void dismissDialog() {
         progressDialogFragment.dismissAllowingStateLoss();
     }
-
 }

@@ -17,7 +17,15 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scan_layout);
-        init();
+        ScanFragment fragment = new ScanFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(ScanConstants.SELECTED_BITMAP,getIntent().getParcelableExtra("uri"));
+        fragment.setArguments(bundle);
+        android.app.FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.content, fragment);
+        fragmentTransaction.addToBackStack(ScanFragment.class.toString());
+        fragmentTransaction.commit();
     }
 
     private void init() {

@@ -1,26 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/black"
     android:orientation="vertical">
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/scanLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        android:background="@color/color_main">
+
+        <Button
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/turn_right"
+            android:id="@+id/turn_left"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_rotate_left_white"
+            />
+
+        <Button
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/turn_left"
+            app:layout_constraintRight_toLeftOf="@+id/scanDone"
+            android:id="@+id/turn_right"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_rotate_right_white"
+            />
+
+        <Button
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/turn_right"
+            app:layout_constraintRight_toRightOf="parent"
+            android:id="@+id/scanDone"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_done_white"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+
     <Button
-        android:id="@+id/scanButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/bottom_background_color"
         android:orientation="horizontal"
         android:padding="@dimen/bottom_bar_padding"
-        android:text="@string/scan"></Button>
+        android:text="확인">
+    </Button>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/scanButton"
-        android:layout_gravity="center"
-        android:layout_margin="@dimen/scanPadding">
+        android:layout_above="@id/scanLayout"
+        android:layout_gravity="center">
 
         <FrameLayout
             android:id="@+id/sourceFrame"
@@ -48,4 +90,4 @@
     </FrameLayout>
 
 
-</RelativeLayout>
+</FrameLayout>
