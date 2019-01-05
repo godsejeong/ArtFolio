@@ -15,6 +15,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import android.R.attr.data
+import com.scanlibrary.ScanConstants
+import java.io.ByteArrayOutputStream
+import android.R.attr.data
+import android.support.v4.content.FileProvider
+import android.R.attr.path
+import java.io.IOException
 
 
 class CameraView : SurfaceView, SurfaceHolder.Callback {
@@ -22,11 +29,7 @@ class CameraView : SurfaceView, SurfaceHolder.Callback {
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-
-
-    var folder: String? = null
-    var filename: String? = null
-
+    var fileUri :Uri? = null
     private var mCamera: Camera? = null
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -130,24 +133,50 @@ class CameraView : SurfaceView, SurfaceHolder.Callback {
         }
     }
 
+    private fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val file = File(ScanConstants.IMAGE_PATH, "IMG_" + timeStamp +
+                ".jpg")
+        fileUri = Uri.fromFile(file)
+        return file
+    }
+
+    private fun getOutputMediaFileUri(): File? {
+        // check for external storage
+        try {
+                // Create an image file nameFile imagePath = new File(Context.getFilesDir(), "images");
+                val imagePath = "IMG_" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+                val storageDir = File(Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/")
+                val image = File.createTempFile(imagePath, ".jpg", storageDir)
+//                var path = image.absolutePath.toInt()
+                return image
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return null
+    }
 
     @SuppressLint("SimpleDateFormat")
-    fun saveImage(): String? {
-        folder = Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/"
-        filename = "${SimpleDateFormat("yyyyMMddhhmmss").format(Date())}.jpg"
+    fun saveImage(): File? {
+        var uri = getOutputMediaFileUri()
+//        val folder = Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/"
+//        val filename = "${SimpleDateFormat("yyyyMMddhhmmss").format(Date())}.jpg"
+
         getPicture { img ->
             val bmp = BitmapFactory.decodeByteArray(img, 0, img.size)
-
-            var folderPath = File(folder)
-            if (!folderPath.isDirectory)
-                folderPath.mkdirs()
-            Log.e("path", folder + filename)
-            val out = FileOutputStream(folder + filename)
+//            val folderPath = File(folder)
+//            if (!folderPath.isDirectory)
+//                folderPath.mkdirs()
+//            val cacheFile = File(context.cacheDir.toString() + File.separator + uri)
+            val out = FileOutputStream(uri)
+            val bytes = ByteArrayOutputStream()
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            out!!.close()
+            out.close()
             mCamera?.startPreview()
         }
-        Log.e("path2", folder + filename)
-        return folder + filename
+//        Log.e("path2","${folder + filename}")
+        return uri
     }
 }

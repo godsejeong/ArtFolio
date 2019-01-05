@@ -11,8 +11,10 @@ import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.content.FileProvider
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.WindowManager
@@ -47,14 +49,19 @@ class CameraActivity : AppCompatActivity() {
         }
 
         cameraPhotoButton.setOnClickListener {
-            var imagepath = Uri.parse(cameraPreview.saveImage())
-            var destinationUri = Uri.parse("/storage/emulated/0/ArtFolio/img/estination.jpg")
-            UCrop.of(imagepath,destinationUri)
-                    .withAspectRatio (16F,9F)
-                    .withMaxResultSize (100, 100)
-                    .start (this)
+           var imagefile = cameraPreview.saveImage()
+//            Log.e("imagepath",cameraPreview.saveImage())
+            var imageurl =
+                    FileProvider.getUriForFile(this@CameraActivity,"com.scanlibrary.provider",imagefile!!)
+            Log.e("imageurl", imageurl.toString())
+            Handler().postDelayed({
+                val intent = Intent(this, ScanActivity::class.java)
+                intent.putExtra("uri",imageurl)
+                startActivityForResult(intent, 1)
+            },1000)
+//            var destinationUri = Uri.parse("/storage/emulated/0/ArtFolio/img/estination.jpg")
         }
-
+//ile:///storage/emulated/0/ArtFolio/img/IMG_20190105_0300342266108233597356430.jpg
 
         cameraFlashBtn.setOnClickListener {
             if(flashbl) {

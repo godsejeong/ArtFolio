@@ -58,6 +58,7 @@
         <activity
             android:name=".scan.ImageScanActivity"
             android:theme="@style/AppTheme_Custom"></activity>
+
     </application>
 
 </manifest>

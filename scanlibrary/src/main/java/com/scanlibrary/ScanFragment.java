@@ -11,6 +11,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,7 +32,7 @@ import java.util.Map;
  */
 public class ScanFragment extends Fragment {
 
-    private Button scanButton;
+    private Button scanDone,turnleft,turnright,scanBack;
     private ImageView sourceImageView;
     private FrameLayout sourceFrame;
     private PolygonView polygonView;
@@ -61,12 +62,50 @@ public class ScanFragment extends Fragment {
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().finish();
+    }
+
     private void init() {
         sourceImageView = (ImageView) view.findViewById(R.id.sourceImageView);
 //        scanButton = (Button) view.findViewById(R.id.scanButton);
 //        scanButton.setOnClickListener(new ScanButtonClickListener());
+
+
+        scanDone = view.findViewById(R.id.scanDone);
+        turnright = view.findViewById(R.id.turn_right);
+        turnleft = view.findViewById(R.id.turn_left);
+        scanBack = view.findViewById(R.id.scanBack);
+//        rotationView = view.findViewById(R.id.rotationView);
         sourceFrame = (FrameLayout) view.findViewById(R.id.sourceFrame);
         polygonView = (PolygonView) view.findViewById(R.id.polygonView);
+
+        turnright.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int w = sourceImageView.getWidth();
+                int h = sourceImageView.getHeight();
+
+                sourceImageView.setRotation(90.0f);
+                sourceImageView.setTranslationX((w - h) / 2);
+                sourceImageView.setTranslationY((h - w) / 2);
+
+                ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) sourceImageView.getLayoutParams();
+                lp.height = w;
+                lp.width = h;
+                sourceImageView.requestLayout();
+            }
+        });
+
+        scanBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
+
         sourceFrame.post(new Runnable() {
             @Override
             public void run() {
@@ -81,7 +120,7 @@ public class ScanFragment extends Fragment {
     private Bitmap getBitmap() {
         Uri uri = getUri();
         try {
-            Bitmap bitmap = Utils.getBitmap(getActivity(), uri);
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
             getActivity().getContentResolver().delete(uri, null, null);
             return bitmap;
         } catch (IOException e) {
