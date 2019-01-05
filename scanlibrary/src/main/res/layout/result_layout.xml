@@ -57,14 +57,14 @@
 
     <Button
         android:id="@+id/doneButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/bottom_background_color"
-        android:orientation="horizontal"
-        android:padding="@dimen/bottom_bar_padding"
-        android:text="@string/done" />
-
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/color_main"
+        android:text="완료"
+        android:textSize="15sp"
+        android:textColor="@android:color/white"
+        />
 
     <FrameLayout
         android:layout_width="match_parent"

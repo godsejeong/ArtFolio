@@ -17,6 +17,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -34,7 +37,7 @@ public class ScanFragment extends Fragment {
 
     private Button scanDone,turnleft,turnright,scanBack;
     private ImageView sourceImageView;
-    private FrameLayout sourceFrame;
+    private FrameLayout sourceFrame,rotationView;
     private PolygonView polygonView;
     private View view;
     private ProgressDialogFragment progressDialogFragment;
@@ -78,24 +81,25 @@ public class ScanFragment extends Fragment {
         turnright = view.findViewById(R.id.turn_right);
         turnleft = view.findViewById(R.id.turn_left);
         scanBack = view.findViewById(R.id.scanBack);
-//        rotationView = view.findViewById(R.id.rotationView);
+        rotationView = view.findViewById(R.id.retoationView);
         sourceFrame = (FrameLayout) view.findViewById(R.id.sourceFrame);
         polygonView = (PolygonView) view.findViewById(R.id.polygonView);
+
+        scanDone.setOnClickListener(new ScanButtonClickListener());
 
         turnright.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int w = sourceImageView.getWidth();
-                int h = sourceImageView.getHeight();
+                Float roatation = 90.0f;
+                rotationView.setRotation(rotationView.getRotation() + roatation);
+            }
+        });
 
-                sourceImageView.setRotation(90.0f);
-                sourceImageView.setTranslationX((w - h) / 2);
-                sourceImageView.setTranslationY((h - w) / 2);
-
-                ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) sourceImageView.getLayoutParams();
-                lp.height = w;
-                lp.width = h;
-                sourceImageView.requestLayout();
+        turnleft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Float roatation = -90.0f;
+                rotationView.setRotation(rotationView.getRotation() + roatation);
             }
         });
 
