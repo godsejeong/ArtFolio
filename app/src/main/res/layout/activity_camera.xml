@@ -54,7 +54,6 @@
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginLeft="40dp"
             android:background="@drawable/ic_gallery_white"/>
-
         <ImageView
             android:id="@+id/cameraPhotoButton"
             android:layout_width="60dp"

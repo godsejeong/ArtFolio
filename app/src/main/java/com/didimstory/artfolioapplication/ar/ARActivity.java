@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.didimstory.artfolioapplication.JavascriptBridge;
 import com.didimstory.artfolioapplication.model.BitmapGender;
 import com.didimstory.artfolioapplication.R;
 import com.google.ar.core.ArCoreApk;
@@ -101,16 +102,9 @@ public class ARActivity extends AppCompatActivity {
      */
 
     private ARNode mHitARNode = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RendererConfiguration config = new RendererConfiguration();
-        config.setShadowsEnabled(true);
-        config.setBloomEnabled(true);
-        config.setHDREnabled(true);
-        config.setPBREnabled(true);
-
         imagePath = getIntent().getStringExtra("imagePath");
         gender = new BitmapGender(imagePath);
         gender.start();
@@ -121,6 +115,15 @@ public class ARActivity extends AppCompatActivity {
         }
 
         Log.e("imagePath", String.valueOf(imagePath));
+        init();
+    }
+
+    private void init(){
+        RendererConfiguration config = new RendererConfiguration();
+        config.setShadowsEnabled(true);
+        config.setBloomEnabled(true);
+        config.setHDREnabled(true);
+        config.setPBREnabled(true);
 
         try {
             mViroView = new ViroViewARCore(this, new ViroViewARCore.StartupListener() {
@@ -303,12 +306,15 @@ public class ARActivity extends AppCompatActivity {
         resetView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                mProductModelGroup = null;
+//                mCrosshairModel = null;
                 mHudGroupView.setVisibility(View.VISIBLE);
                 mStatus = TRACK_STATUS.FINDING_SURFACE;
                 mHitARNode = null;
                 updateUIHud();
                 update3DARCrosshair();
                 update3DModelProduct();
+                displayScene();
             }
         });
 
@@ -484,7 +490,7 @@ public class ARActivity extends AppCompatActivity {
         mProductModelGroup.setOpacity(0);
         mProductModelGroup.addChildNode(productModel);
     }
-
+    //track체
     private void setTrackingStatus(TRACK_STATUS status) {
         if (mStatus == TRACK_STATUS.SELECTED_SURFACE || mStatus == status) {
             Log.e("check", "return");

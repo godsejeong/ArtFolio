@@ -22,6 +22,7 @@ import com.scanlibrary.*
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_camera.*
 import java.io.IOException
+import java.lang.NullPointerException
 
 
 class CameraActivity : AppCompatActivity() {
@@ -51,8 +52,12 @@ class CameraActivity : AppCompatActivity() {
         cameraPhotoButton.setOnClickListener {
            var imagefile = cameraPreview.saveImage()
 //            Log.e("imagepath",cameraPreview.saveImage())
-            var imageurl =
-                    FileProvider.getUriForFile(this@CameraActivity,"com.scanlibrary.provider",imagefile!!)
+            var imageurl:Uri? =null
+            try{
+            imageurl = FileProvider.getUriForFile(this@CameraActivity,"com.scanlibrary.provider",imagefile!!)
+            }catch (e : NullPointerException){
+                imageurl = Uri.parse(imagefile!!.path)
+            }
             Log.e("imageurl", imageurl.toString())
             Handler().postDelayed({
                 val intent = Intent(this, ScanActivity::class.java)

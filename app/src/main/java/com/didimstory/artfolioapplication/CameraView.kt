@@ -141,21 +141,25 @@ class CameraView : SurfaceView, SurfaceHolder.Callback {
         return file
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun getOutputMediaFileUri(): File? {
         // check for external storage
-        try {
+//        try {
                 // Create an image file nameFile imagePath = new File(Context.getFilesDir(), "images");
                 val imagePath = "IMG_" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-                val storageDir = File(Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/")
-                val image = File.createTempFile(imagePath, ".jpg", storageDir)
+                val storageDir = Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/"
+                val folderPath = File(storageDir)
+                if (!folderPath.isDirectory)
+                    folderPath.mkdirs()
+                val image = File.createTempFile(imagePath, ".jpg", folderPath)
 //                var path = image.absolutePath.toInt()
                 return image
 
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
-        return null
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//            Log.e("asdfsadfa","ASdfasdf")
+//        }
+//        return null
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -166,7 +170,6 @@ class CameraView : SurfaceView, SurfaceHolder.Callback {
 
         getPicture { img ->
             val bmp = BitmapFactory.decodeByteArray(img, 0, img.size)
-//            val folderPath = File(folder)
 //            if (!folderPath.isDirectory)
 //                folderPath.mkdirs()
 //            val cacheFile = File(context.cacheDir.toString() + File.separator + uri)
@@ -176,7 +179,7 @@ class CameraView : SurfaceView, SurfaceHolder.Callback {
             out.close()
             mCamera?.startPreview()
         }
-//        Log.e("path2","${folder + filename}")
+        Log.e("path2",uri!!.path)
         return uri
     }
 }
