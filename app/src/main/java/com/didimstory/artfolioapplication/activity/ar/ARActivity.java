@@ -1,4 +1,4 @@
-package com.didimstory.artfolioapplication.ar;
+package com.didimstory.artfolioapplication.activity.ar;
 
 import android.Manifest;
 import android.content.Context;
@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.didimstory.artfolioapplication.JavascriptBridge;
 import com.didimstory.artfolioapplication.model.BitmapGender;
 import com.didimstory.artfolioapplication.R;
 import com.google.ar.core.ArCoreApk;
@@ -302,22 +301,21 @@ public class ARActivity extends AppCompatActivity {
             }
         });
 
-        TextView resetView = findViewById(R.id.ar_reset_btn);
-        resetView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                mProductModelGroup = null;
-//                mCrosshairModel = null;
-                mHudGroupView.setVisibility(View.VISIBLE);
-                mStatus = TRACK_STATUS.FINDING_SURFACE;
-                mHitARNode = null;
-                updateUIHud();
-                update3DARCrosshair();
-                update3DModelProduct();
-                displayScene();
-            }
-        });
-
+//        TextView resetView = findViewById(R.id.ar_reset_btn);
+//        resetView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                mProductModelGroup = null;
+////                mCrosshairModel = null;
+//                mHudGroupView.setVisibility(View.VISIBLE);
+//                mStatus = TRACK_STATUS.FINDING_SURFACE;
+//                mHitARNode = null;
+//                updateUIHud();
+//                update3DARCrosshair();
+//                update3DModelProduct();
+//                displayScene();
+//            }
+//        });
 
         // 이미지 촬영
         mCameraButton = (ImageView) mViroView.findViewById(R.id.ar_photo_button);

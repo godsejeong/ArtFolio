@@ -34,7 +34,7 @@ import java.util.Map;
  * Created by jhansi on 29/03/15.
  */
 public class ScanFragment extends Fragment {
-
+    Float roatation = 90.0f;
     private Button scanDone,turnleft,turnright,scanBack;
     private ImageView sourceImageView;
     private FrameLayout sourceFrame,rotationView;
@@ -90,7 +90,6 @@ public class ScanFragment extends Fragment {
         turnright.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Float roatation = 90.0f;
                 rotationView.setRotation(rotationView.getRotation() + roatation);
             }
         });
@@ -98,8 +97,7 @@ public class ScanFragment extends Fragment {
         turnleft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Float roatation = -90.0f;
-                rotationView.setRotation(rotationView.getRotation() + roatation);
+                rotationView.setRotation(rotationView.getRotation() + (roatation*-1));
             }
         });
 
@@ -199,7 +197,8 @@ public class ScanFragment extends Fragment {
         public void onClick(View v) {
             Map<Integer, PointF> points = polygonView.getPoints();
             if (isScanPointsValid(points)) {
-                new ScanAsyncTask(points).execute();
+                new ScanAsyncTask(points,
+                        rotationView.getRotation()).execute();
             } else {
                 showErrorDialog();
             }
@@ -244,9 +243,11 @@ public class ScanFragment extends Fragment {
     private class ScanAsyncTask extends AsyncTask<Void, Void, Bitmap> {
 
         private Map<Integer, PointF> points;
+        float rotation;
 
-        public ScanAsyncTask(Map<Integer, PointF> points) {
+        public ScanAsyncTask(Map<Integer, PointF> points,float rotation) {
             this.points = points;
+            this.rotation  = rotation;
         }
 
         @Override
@@ -258,6 +259,9 @@ public class ScanFragment extends Fragment {
         @Override
         protected Bitmap doInBackground(Void... params) {
             Bitmap bitmap =  getScannedBitmap(original, points);
+//            Matrix matrix = new Matrix();
+//            matrix.postRotate(roatation);
+//            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
             Uri uri = Utils.getUri(getActivity(), bitmap);
             scanner.onScanFinish(uri);
             return bitmap;

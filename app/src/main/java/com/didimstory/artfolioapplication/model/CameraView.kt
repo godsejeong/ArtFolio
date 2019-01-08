@@ -1,4 +1,4 @@
-package com.didimstory.artfolioapplication
+package com.didimstory.artfolioapplication.model
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,13 +15,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import android.R.attr.data
 import com.scanlibrary.ScanConstants
 import java.io.ByteArrayOutputStream
-import android.R.attr.data
-import android.support.v4.content.FileProvider
-import android.R.attr.path
-import java.io.IOException
 
 
 class CameraView : SurfaceView, SurfaceHolder.Callback {

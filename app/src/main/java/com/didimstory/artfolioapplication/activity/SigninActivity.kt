@@ -32,11 +32,11 @@ class SigninActivity : AppCompatActivity() {
             finish()
         }
 
-        signinLogin.setOnLongClickListener {
-            var intent = Intent(applicationContext, CameraActivity::class.java)
-            startActivity(intent)
-            return@setOnLongClickListener true
-        }
+//        signinLogin.setOnLongClickListener {
+//            var intent = Intent(applicationContext, CameraActivity::class.java)
+//            startActivity(intent)
+//            return@setOnLongClickListener true
+//        }
 
             signinRegister.setOnClickListener {
             var intent = Intent(applicationContext,WebActivity::class.java)

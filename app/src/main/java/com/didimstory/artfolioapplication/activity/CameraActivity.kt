@@ -12,6 +12,7 @@ import android.content.res.AssetFileDescriptor
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Handler
+import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
@@ -19,7 +20,6 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.WindowManager
 import com.scanlibrary.*
-import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_camera.*
 import java.io.IOException
 import java.lang.NullPointerException
@@ -88,20 +88,19 @@ class CameraActivity : AppCompatActivity() {
         var bitmap : Bitmap? = null
         if(resultCode == Activity.RESULT_OK){
             if(requestCode == 100){
-                var destinationUri = Uri.parse("/storage/emulated/0/ArtFolio/img/estination.jpg")
-
                 val intent = Intent(this, ScanActivity::class.java)
                 intent.putExtra("uri",data!!.data)
                 Log.e("uripath", data!!.data.toString())
-//                intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE,ScanConstants.PICKFILE_REQUEST_CODE)
                 startActivityForResult(intent,1)
-//                Log.e("click", "check")
+            }
 
-
-
-                bitmap = getBitmap(data!!.data)
-
-//                ScanFragment
+            if(requestCode == 1){
+                val uri = data!!.extras!!.getParcelable<Uri>(ScanConstants.SCANNED_RESULT)
+                bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                var intent=  Intent()
+                intent.putExtra("uri",uri)
+                setResult(Activity.RESULT_OK,intent)
+                finish()
             }
         }
     }
