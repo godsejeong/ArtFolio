@@ -26,9 +26,8 @@ import java.lang.NullPointerException
 
 
 class CameraActivity : AppCompatActivity() {
-    var flashbl : Boolean = true
+    var flashbl: Boolean = true
     var scanner: IScanner? = null
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,57 +48,58 @@ class CameraActivity : AppCompatActivity() {
             finish()
         }
 
+        cameraPreview.setOnClickListener{
+            cameraPreview.autoFocus()
+        }
+
         cameraPhotoButton.setOnClickListener {
-           var imagefile = cameraPreview.saveImage()
-//            Log.e("imagepath",cameraPreview.saveImage())
-            var imageurl:Uri? =null
-            try{
-            imageurl = FileProvider.getUriForFile(this@CameraActivity,"com.scanlibrary.provider",imagefile!!)
-            }catch (e : NullPointerException){
-                imageurl = Uri.parse(imagefile!!.path)
+            var imagefile = cameraPreview.saveImage()
+            var imageurl: Uri? = null
+
+            imageurl = try {
+                FileProvider.getUriForFile(this@CameraActivity, "com.scanlibrary.provider", imagefile!!)
+            } catch (e: NullPointerException) {
+                Uri.parse(imagefile!!.path)
             }
+
             Log.e("imageurl", imageurl.toString())
             Handler().postDelayed({
                 val intent = Intent(this, ScanActivity::class.java)
-                intent.putExtra("uri",imageurl)
+                intent.putExtra("uri", imageurl)
                 startActivityForResult(intent, 1)
-            },1000)
-//            var destinationUri = Uri.parse("/storage/emulated/0/ArtFolio/img/estination.jpg")
+            }, 1000)
         }
-//ile:///storage/emulated/0/ArtFolio/img/IMG_20190105_0300342266108233597356430.jpg
 
         cameraFlashBtn.setOnClickListener {
-            if(flashbl) {
+            if (flashbl) {
                 flashbl = false
                 cameraPreview.Flashon()
                 cameraFlashBtn.setBackgroundResource(R.drawable.ic_flash_off_black_24dp)
-            }else {
+            } else {
                 flashbl = true
                 cameraPreview.Flashoff()
                 cameraFlashBtn.setBackgroundResource(R.drawable.ic_flash_on_white)
             }
         }
-
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        var bitmap : Bitmap? = null
-        if(resultCode == Activity.RESULT_OK){
-            if(requestCode == 100){
+        var bitmap: Bitmap? = null
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 100) {
                 val intent = Intent(this, ScanActivity::class.java)
-                intent.putExtra("uri",data!!.data)
+                intent.putExtra("uri", data!!.data)
                 Log.e("uripath", data!!.data.toString())
-                startActivityForResult(intent,1)
+                startActivityForResult(intent, 1)
             }
 
-            if(requestCode == 1){
+            if (requestCode == 1) {
                 val uri = data!!.extras!!.getParcelable<Uri>(ScanConstants.SCANNED_RESULT)
                 bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-                var intent=  Intent()
-                intent.putExtra("uri",uri)
-                setResult(Activity.RESULT_OK,intent)
+                var intent = Intent()
+                intent.putExtra("uri", uri)
+                setResult(Activity.RESULT_OK, intent)
                 finish()
             }
         }
@@ -122,7 +122,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun startCamera() {
-        Log.e("Asdfadf","Asdfasdf")
+        Log.e("Asdfadf", "Asdfasdf")
         val holder = cameraPreview.holder
         holder.addCallback(cameraPreview)
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
@@ -147,7 +147,7 @@ class CameraActivity : AppCompatActivity() {
             Log.e("grantResults", "1 : ${grantResults[0].toString()} 2 : ${grantResults[1].toString()}")
 
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED
-             && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 startCamera()
             }
         }

@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class ResultFragment extends Fragment {
 
     private View view;
+    private FrameLayout doenFrame;
     private ImageView scannedImageView;
     private Button doneButton;
     private Bitmap original;
@@ -30,9 +33,10 @@ public class ResultFragment extends Fragment {
     private Button MagicColorButton;
     private Button grayModeButton;
     private Button bwButton;
+    private Button leftBtn,rightBtn;
     private Bitmap transformed;
     private static ProgressDialogFragment progressDialogFragment;
-
+    private int degrees = 0;
     public ResultFragment() {
     }
 
@@ -46,6 +50,7 @@ public class ResultFragment extends Fragment {
     private void init() {
         scannedImageView = (ImageView) view.findViewById(R.id.scannedImage);
         originalButton = (Button) view.findViewById(R.id.original);
+        doenFrame = view.findViewById(R.id.doenFrame);
         originalButton.setOnClickListener(new OriginalButtonClickListener());
         MagicColorButton = (Button) view.findViewById(R.id.magicColor);
         MagicColorButton.setOnClickListener(new MagicColorButtonClickListener());
@@ -53,6 +58,27 @@ public class ResultFragment extends Fragment {
         grayModeButton.setOnClickListener(new GrayButtonClickListener());
         bwButton = (Button) view.findViewById(R.id.BWMode);
         bwButton.setOnClickListener(new BWButtonClickListener());
+
+
+        leftBtn = (Button) view.findViewById(R.id.done_left);
+        rightBtn = (Button) view.findViewById(R.id.done_right);
+
+        leftBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doenFrame.setRotation(doenFrame.getRotation()-90);
+                degrees-=90;
+            }
+        });
+
+        rightBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doenFrame.setRotation(doenFrame.getRotation()+90);
+                degrees+=90;
+            }
+        });
+
         Bitmap bitmap = getBitmap();
         setScannedImage(bitmap);
         doneButton = (Button) view.findViewById(R.id.doneButton);
@@ -80,6 +106,25 @@ public class ResultFragment extends Fragment {
         scannedImageView.setImageBitmap(scannedImage);
     }
 
+    public Bitmap rotate(Bitmap bitmap, int degrees) {
+        if (degrees != 0 && bitmap != null) {
+            Matrix m = new Matrix();
+            m.setRotate(degrees);
+            try {
+                Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0,
+                        bitmap.getWidth(), bitmap.getHeight(), m, true);
+                if (bitmap != converted) {
+                    bitmap = null;
+                    bitmap = converted;
+                    converted = null;
+                }
+            } catch (OutOfMemoryError ex) {
+                Toast.makeText(getActivity(), "메모리가 부족합니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        return bitmap;
+    }
+
     private class DoneButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -89,10 +134,13 @@ public class ResultFragment extends Fragment {
                 public void run() {
                     try {
                         Intent data = new Intent();
-                        Bitmap bitmap = transformed;
+                        Bitmap bitmap = rotate(transformed,degrees);
                         if (bitmap == null) {
                             bitmap = original;
                         }
+
+
+
                         Uri uri = Utils.getUri(getActivity(), bitmap);
                         data.putExtra(ScanConstants.SCANNED_RESULT, uri);
                         getActivity().setResult(Activity.RESULT_OK, data);

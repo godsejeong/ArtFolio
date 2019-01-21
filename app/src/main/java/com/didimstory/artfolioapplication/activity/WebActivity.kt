@@ -23,8 +23,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import android.provider.MediaStore
-
-
+import android.view.View
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import com.bumptech.glide.Glide
 
 
 class WebActivity : AppCompatActivity() {
@@ -39,8 +41,26 @@ class WebActivity : AppCompatActivity() {
         webView.addJavascriptInterface(JavascriptBridge(this@WebActivity), "ARBridge")
         webView.addJavascriptInterface(JavascriptBridge(this@WebActivity), "CameraBridge")
         webView.loadUrl(url)
-        webView.webViewClient = WebViewClient()
 
+        webView.webChromeClient = object : WebChromeClient() {
+
+            override fun onProgressChanged(view: WebView, newProgress: Int) {
+
+                Glide.with(this@WebActivity).load(R.drawable.pageloader_artfolio).into(loddingImg)
+                loddingImg.visibility = View.VISIBLE
+                if (newProgress >= 100) {
+                    loddingImg.visibility = View.INVISIBLE
+                }
+            }
+        }
+
+        webView.webViewClient = object : WebViewClient(){
+
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                view!!.loadUrl(url)
+                return true
+            }
+        }
 
     }
 
@@ -68,6 +88,15 @@ class WebActivity : AppCompatActivity() {
                         response.body()?.let {
                             Log.e("upload","complete")
                             Toast.makeText(this@WebActivity,"이미지 업로드가 완료되었습니다.",Toast.LENGTH_SHORT).show()
+
+                            val file = File(getPath(uri))
+                            file.delete()
+                            if (file.exists()) {
+                                file.canonicalFile.delete()
+                                if (file.exists()) {
+                                    applicationContext.deleteFile(file.name)
+                                }
+                            }
                         }
                     }else{
                         Log.e("responceCode : ", response.code().toString())

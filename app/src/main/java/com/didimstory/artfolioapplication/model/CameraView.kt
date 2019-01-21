@@ -17,14 +17,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.scanlibrary.ScanConstants
 import java.io.ByteArrayOutputStream
-
+import android.widget.Toast
 
 class CameraView : SurfaceView, SurfaceHolder.Callback {
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-    var fileUri :Uri? = null
+
     private var mCamera: Camera? = null
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -116,6 +116,18 @@ class CameraView : SurfaceView, SurfaceHolder.Callback {
         return mCamera!!.parameters.supportedPreviewSizes.first()
     }
 
+    fun autoFocus(){
+        mCamera?.autoFocus { success, camera ->
+            if (success) {
+                //성공
+            } else {
+                //샐패
+            }
+
+            Log.e("success", success.toString())
+        }
+    }
+
     fun setFocus(onFocus: (Boolean, Camera) -> Unit) {
         mCamera?.autoFocus { b, camera ->
             onFocus(b, camera)
@@ -128,53 +140,30 @@ class CameraView : SurfaceView, SurfaceHolder.Callback {
         }
     }
 
-    private fun createImageFile(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val file = File(ScanConstants.IMAGE_PATH, "IMG_" + timeStamp +
-                ".jpg")
-        fileUri = Uri.fromFile(file)
-        return file
-    }
-
     @SuppressLint("SimpleDateFormat")
     private fun getOutputMediaFileUri(): File? {
-        // check for external storage
-//        try {
-                // Create an image file nameFile imagePath = new File(Context.getFilesDir(), "images");
-                val imagePath = "IMG_" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-                val storageDir = Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/"
-                val folderPath = File(storageDir)
-                if (!folderPath.isDirectory)
-                    folderPath.mkdirs()
-                val image = File.createTempFile(imagePath, ".jpg", folderPath)
-//                var path = image.absolutePath.toInt()
-                return image
-
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//            Log.e("asdfsadfa","ASdfasdf")
-//        }
-//        return null
+        val imagePath = "IMG_" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir = Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/"
+        val folderPath = File(storageDir)
+        if (!folderPath.isDirectory)
+            folderPath.mkdirs()
+        val image = File.createTempFile(imagePath, ".jpg", folderPath)
+        return image
     }
 
     @SuppressLint("SimpleDateFormat")
     fun saveImage(): File? {
         var uri = getOutputMediaFileUri()
-//        val folder = Environment.getExternalStorageDirectory().absolutePath + "/ArtFolio/img/"
-//        val filename = "${SimpleDateFormat("yyyyMMddhhmmss").format(Date())}.jpg"
 
         getPicture { img ->
             val bmp = BitmapFactory.decodeByteArray(img, 0, img.size)
-//            if (!folderPath.isDirectory)
-//                folderPath.mkdirs()
-//            val cacheFile = File(context.cacheDir.toString() + File.separator + uri)
             val out = FileOutputStream(uri)
             val bytes = ByteArrayOutputStream()
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, out)
             out.close()
             mCamera?.startPreview()
         }
-        Log.e("path2",uri!!.path)
+        Log.e("path2", uri!!.path)
         return uri
     }
 }
