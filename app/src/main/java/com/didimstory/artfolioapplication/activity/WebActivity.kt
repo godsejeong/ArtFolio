@@ -61,7 +61,6 @@ class WebActivity : AppCompatActivity() {
                 return true
             }
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -73,6 +72,7 @@ class WebActivity : AppCompatActivity() {
             var uri = data!!.getParcelableExtra<Parcelable>("uri") as Uri
 
             var categoryIdx =  RequestBody.create(MediaType.parse("text/plain"),"3")
+            var redirectUrl = "http://artfolio.co.kr/user/firstRegister/"
             var res = Utils.postService.UploadImg(
                    Utils.createMultipartBody(File(getPath(uri)),"file"),
                    categoryIdx
@@ -88,18 +88,22 @@ class WebActivity : AppCompatActivity() {
                         response.body()?.let {
                             Log.e("upload","complete")
                             Toast.makeText(this@WebActivity,"이미지 업로드가 완료되었습니다.",Toast.LENGTH_SHORT).show()
-
-                            val file = File(getPath(uri))
-                            file.delete()
-                            if (file.exists()) {
-                                file.canonicalFile.delete()
-                                if (file.exists()) {
-                                    applicationContext.deleteFile(file.name)
-                                }
-                            }
+                            redirectUrl+= it.imageIdx
+                            webView.loadUrl(redirectUrl)
                         }
                     }else{
-                        Log.e("responceCode : ", response.code().toString())
+                        Toast.makeText(this@WebActivity,"이미지가 업로드중에 오류가 발생하였습니다.",Toast.LENGTH_SHORT).show()
+                        Log.e("responceCode", response.code().toString())
+                        Log.e("message", response.message())
+                    }
+
+                    val file = File(getPath(uri))
+                    file.delete()
+                    if (file.exists()) {
+                        file.canonicalFile.delete()
+                        if (file.exists()) {
+                            applicationContext.deleteFile(file.name)
+                        }
                     }
                 }
             })

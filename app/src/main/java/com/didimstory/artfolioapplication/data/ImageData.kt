@@ -4,6 +4,7 @@ class ImageData {
     var categoryIdx : Int = 0
     var imagePath : String = ""
     var imageRealPath : String = ""
+    var imageIdx : String = ""
 }
 
 //"callback": null,

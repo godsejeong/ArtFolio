@@ -135,11 +135,10 @@ public class ResultFragment extends Fragment {
                     try {
                         Intent data = new Intent();
                         Bitmap bitmap = rotate(transformed,degrees);
+//                        Bitmap bitmap = transformed;
                         if (bitmap == null) {
-                            bitmap = original;
+                            bitmap = rotate(original,degrees);
                         }
-
-
 
                         Uri uri = Utils.getUri(getActivity(), bitmap);
                         data.putExtra(ScanConstants.SCANNED_RESULT, uri);
@@ -150,6 +149,7 @@ public class ResultFragment extends Fragment {
                             @Override
                             public void run() {
                                 dismissDialog();
+
                                 getActivity().finish();
                             }
                         });
